@@ -5,6 +5,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import { motion } from 'framer-motion'
 import styled from '@emotion/styled'
 import DisplayLudgi from './components/DisplayLudgi'
+import { saveAs } from 'file-saver';
 
 const Container = styled.div`
   display: flex;
@@ -222,35 +223,24 @@ export default function Home() {
 
   const downloadQRCode = () => {
     if (qrRef.current) {
-      const canvas = document.createElement('canvas')
-      const svg = qrRef.current
-      const box = svg.getBoundingClientRect()
-      canvas.width = box.width
-      canvas.height = box.height
-      const ctx = canvas.getContext('2d')
-      const data = new XMLSerializer().serializeToString(svg)
-      const DOMURL = window.URL || window.webkitURL || window
-      const img = new Image()
-      const svgBlob = new Blob([data], { type: 'image/svg+xml;charset=utf-8' })
-      const url = DOMURL.createObjectURL(svgBlob)
+      const svg = qrRef.current;
+      const svgData = new XMLSerializer().serializeToString(svg);
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
 
       img.onload = () => {
-        if (ctx) {
-          ctx.drawImage(img, 0, 0)
-          DOMURL.revokeObjectURL(url)
-          const imgURI = canvas
-            .toDataURL('image/png')
-            .replace('image/png', 'image/octet-stream')
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx?.drawImage(img, 0, 0);
+        canvas.toBlob((blob) => {
+          if (blob) {
+            saveAs(blob, 'qrcode.png');
+          }
+        });
+      };
 
-          const downloadLink = document.createElement('a')
-          downloadLink.href = imgURI
-          downloadLink.download = 'qrcode.png'
-          document.body.appendChild(downloadLink)
-          downloadLink.click()
-          document.body.removeChild(downloadLink)
-        }
-      }
-      img.src = url
+      img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
     }
   }
 
@@ -364,7 +354,7 @@ export default function Home() {
             type="number"
             placeholder="200"
             value={qrSize}
-            onChange={(e) => setQrSize(Math.min(Number(e.target.value), 300))}
+            onChange={(e) => setQrSize(Math.min(Number(e.target.value), 1024))}
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
