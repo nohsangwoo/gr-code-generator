@@ -7,7 +7,7 @@ User-agent: *
 Disallow: /private/
 
 # Host
-Host: https://imgconv.ludgi.ai
+Host: https://qrgen.ludgi.ai
 
 # Sitemaps
-Sitemap: https://imgconv.ludgi.ai/sitemap.xml
+Sitemap: https://qrgen.ludgi.ai/sitemap.xml

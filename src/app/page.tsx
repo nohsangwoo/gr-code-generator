@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { motion } from 'framer-motion'
 import styled from '@emotion/styled'
+import DisplayLudgi from './components/DisplayLudgi'
 
 const Container = styled.div`
   display: flex;
@@ -12,7 +13,8 @@ const Container = styled.div`
   justify-content: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 2rem;
+  padding: 1rem;
+  overflow-y: auto;
 `
 
 const Title = styled(motion.h1)`
@@ -20,6 +22,7 @@ const Title = styled(motion.h1)`
   color: #ffffff;
   margin-bottom: 2rem;
   text-align: center;
+  line-height: 1.2; // 줄 간격을 좁히기 위해 추가
 `
 
 const Form = styled.form`
@@ -28,6 +31,7 @@ const Form = styled.form`
   align-items: center;
   width: 100%;
   max-width: 400px;
+  margin-bottom: 1rem;
 `
 
 const InputGroup = styled.div`
@@ -64,36 +68,25 @@ const ColorInput = styled(Input)`
   background: none;
 `
 
-const Button = styled(motion.button)`
-  padding: 1rem 2rem;
-  background-color: #4c1d95;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
 
-  &:hover {
-    background-color: #5b21b6;
-  }
-`
 
 const QRCodeContainer = styled(motion.div)`
-  margin-top: 2rem;
-  padding: 1rem;
+  margin-top: 1rem;
+  padding: 0.5rem;
   background-color: #ffffff;
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  overflow: hidden;
 `
 
 const DownloadButton = styled(motion.button)`
-  padding: 1rem 2rem;
+  padding: 0.75rem 1.5rem;
   background-color: #4c1d95;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  font-size: 1rem;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s ease;
   margin-top: 1rem;
@@ -194,7 +187,7 @@ export default function Home() {
   const [ssid, setSsid] = useState('')
   const [password, setPassword] = useState('')
   const [encryption, setEncryption] = useState('WPA')
-  const [qrSize, setQrSize] = useState(256)
+  const [qrSize, setQrSize] = useState(200)
   const [qrColor, setQrColor] = useState('#000000')
   const qrRef = useRef<SVGSVGElement>(null)
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
@@ -369,9 +362,9 @@ export default function Home() {
           <Input
             id="size"
             type="number"
-            placeholder="256"
+            placeholder="200"
             value={qrSize}
-            onChange={(e) => setQrSize(Number(e.target.value))}
+            onChange={(e) => setQrSize(Math.min(Number(e.target.value), 300))}
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
@@ -390,15 +383,7 @@ export default function Home() {
           />
         </InputGroup>
       </Form>
-      {(url || (ssid && password)) && (
-        <QRCodeContainer
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-        >
-          <QRCodeSVG ref={qrRef} value={generateQRValue()} size={qrSize} fgColor={qrColor} />
-        </QRCodeContainer>
-      )}
+
       {(url || (ssid && password)) && (
         <DownloadButton
           onClick={downloadQRCode}
@@ -408,6 +393,23 @@ export default function Home() {
           Download QR Code
         </DownloadButton>
       )}
+
+      {(url || (ssid && password)) && (
+        <QRCodeContainer
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          <QRCodeSVG
+            ref={qrRef}
+            value={generateQRValue()}
+            size={qrSize}
+            fgColor={qrColor}
+            style={{ maxWidth: '100%', height: 'auto' }}
+          />
+        </QRCodeContainer>
+      )}
+      <DisplayLudgi />
     </Container>
   )
 }
