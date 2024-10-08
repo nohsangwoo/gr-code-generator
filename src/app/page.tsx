@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { QRCodeSVG } from 'qrcode.react'
 import { motion } from 'framer-motion'
 import styled from '@emotion/styled'
@@ -103,11 +103,129 @@ const DownloadButton = styled(motion.button)`
   }
 `
 
+const TabContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+`
+
+const Tab = styled(motion.button) <{ active: boolean }>`
+  padding: 0.5rem 1rem;
+  margin: 0 0.5rem;
+  background-color: ${props => props.active ? '#4c1d95' : 'rgba(255, 255, 255, 0.2)'};
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: #5b21b6;
+  }
+`
+
+const Select = styled(motion.select)`
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+  }
+`
+
+const SelectWrapper = styled.div`
+  position: relative;
+  width: 100%;
+`
+
+const SelectButton = styled(motion.button)`
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+  }
+`
+
+const DropdownList = styled(motion.ul)`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 10;
+`
+
+const DropdownItem = styled(motion.li)`
+  padding: 0.75rem;
+  color: #4c1d95;
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(76, 29, 149, 0.1);
+  }
+`
+
 export default function Home() {
+  const [activeTab, setActiveTab] = useState<'url' | 'wifi'>('url')
   const [url, setUrl] = useState('')
+  const [ssid, setSsid] = useState('')
+  const [password, setPassword] = useState('')
+  const [encryption, setEncryption] = useState('WPA')
   const [qrSize, setQrSize] = useState(256)
   const [qrColor, setQrColor] = useState('#000000')
   const qrRef = useRef<SVGSVGElement>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const encryptionOptions = [
+    { value: 'WPA', label: 'WPA/WPA2' },
+    { value: 'WEP', label: 'WEP' },
+    { value: 'nopass', label: 'No Encryption' },
+  ]
+
+  const generateQRValue = () => {
+    if (activeTab === 'url') {
+      return url
+    } else {
+      return `WIFI:T:${encryption};S:${ssid};P:${password};;`
+    }
+  }
 
   const downloadQRCode = () => {
     if (qrRef.current) {
@@ -150,24 +268,104 @@ export default function Home() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        QR 코드 생성기
+        QR Code Generator
       </Title>
+      <TabContainer>
+        <Tab
+          active={activeTab === 'url'}
+          onClick={() => setActiveTab('url')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          URL
+        </Tab>
+        <Tab
+          active={activeTab === 'wifi'}
+          onClick={() => setActiveTab('wifi')}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Wi-Fi
+        </Tab>
+      </TabContainer>
       <Form onSubmit={(e) => e.preventDefault()}>
+        {activeTab === 'url' ? (
+          <InputGroup>
+            <Label htmlFor="url">URL</Label>
+            <Input
+              id="url"
+              type="url"
+              placeholder="https://example.com"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            />
+          </InputGroup>
+        ) : (
+          <>
+            <InputGroup>
+              <Label htmlFor="ssid">Wi-Fi Name (SSID)</Label>
+              <Input
+                id="ssid"
+                type="text"
+                placeholder="Your Wi-Fi Name"
+                value={ssid}
+                onChange={(e) => setSsid(e.target.value)}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              />
+            </InputGroup>
+            <InputGroup>
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                placeholder="Wi-Fi Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+              />
+            </InputGroup>
+            <InputGroup>
+              <Label htmlFor="encryption">Encryption</Label>
+              <SelectWrapper ref={dropdownRef}>
+                <SelectButton
+                  onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {encryptionOptions.find(option => option.value === encryption)?.label}
+                </SelectButton>
+                {isDropdownOpen && (
+                  <DropdownList
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    {encryptionOptions.map((option) => (
+                      <DropdownItem
+                        key={option.value}
+                        onClick={() => {
+                          setEncryption(option.value)
+                          setIsDropdownOpen(false)
+                        }}
+                        whileHover={{ backgroundColor: 'rgba(76, 29, 149, 0.2)' }}
+                      >
+                        {option.label}
+                      </DropdownItem>
+                    ))}
+                  </DropdownList>
+                )}
+              </SelectWrapper>
+            </InputGroup>
+          </>
+        )}
         <InputGroup>
-          <Label htmlFor="url">URL</Label>
-          <Input
-            id="url"
-            type="url"
-            placeholder="https://example.com"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          />
-        </InputGroup>
-        <InputGroup>
-          <Label htmlFor="size">QR 코드 크기 (픽셀)</Label>
+          <Label htmlFor="size">QR Code Size (pixels)</Label>
           <Input
             id="size"
             type="number"
@@ -176,11 +374,11 @@ export default function Home() {
             onChange={(e) => setQrSize(Number(e.target.value))}
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           />
         </InputGroup>
         <InputGroup>
-          <Label htmlFor="color">QR 코드 색상</Label>
+          <Label htmlFor="color">QR Code Color</Label>
           <ColorInput
             id="color"
             type="color"
@@ -188,26 +386,26 @@ export default function Home() {
             onChange={(e) => setQrColor(e.target.value)}
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
           />
         </InputGroup>
       </Form>
-      {url && (
+      {(url || (ssid && password)) && (
         <QRCodeContainer
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
         >
-          <QRCodeSVG ref={qrRef} value={url} size={qrSize} fgColor={qrColor} />
+          <QRCodeSVG ref={qrRef} value={generateQRValue()} size={qrSize} fgColor={qrColor} />
         </QRCodeContainer>
       )}
-      {url && (
+      {(url || (ssid && password)) && (
         <DownloadButton
           onClick={downloadQRCode}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
-          QR 코드 다운로드
+          Download QR Code
         </DownloadButton>
       )}
     </Container>
