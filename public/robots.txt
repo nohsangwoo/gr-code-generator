@@ -1,13 +1,96 @@
-# *
+# https://qrgen.ludgi.ai/robots.txt
+# LUDGI QR Code Generator - Robots Configuration
+# Last updated: 2025-01-23
+
+# Allow all search engines by default
 User-agent: *
 Allow: /
-
-# *
-User-agent: *
+Disallow: /api/internal/
+Disallow: /admin/
+Disallow: /_next/static/
 Disallow: /private/
+Crawl-delay: 0
 
-# Host
-Host: https://qrgen.ludgi.ai
+# Google Bot specific rules
+User-agent: Googlebot
+Allow: /
+Allow: /*.js
+Allow: /*.css
+Allow: /api/public/
+Disallow: /api/internal/
+Crawl-delay: 0
 
-# Sitemaps
+# Google Image Bot
+User-agent: Googlebot-Image
+Allow: /
+Allow: /images/
+Allow: /*.png
+Allow: /*.jpg
+Allow: /*.jpeg
+Allow: /*.webp
+Allow: /*.svg
+Disallow: /api/
+
+# Naver Bot (Korean search engine)
+User-agent: Yeti
+Allow: /
+Crawl-delay: 0
+
+# Daum Bot (Korean search engine)
+User-agent: Daumoa
+Allow: /
+Crawl-delay: 0
+
+# Bing Bot
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 0
+
+# Social Media Bots (for link previews)
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Kakaotalk-scrap
+Allow: /
+
+User-agent: Pinterest
+Allow: /
+
+# Apple Bot (for Siri and Spotlight)
+User-agent: Applebot
+Allow: /
+
+# DuckDuckGo Bot
+User-agent: DuckDuckBot
+Allow: /
+
+# Block aggressive SEO analysis bots
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: SemrushBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /
+
+User-agent: DotBot
+Disallow: /
+
+# Sitemap locations
 Sitemap: https://qrgen.ludgi.ai/sitemap.xml
+
+# Host preference (for search engines that support it)
+Host: https://qrgen.ludgi.ai

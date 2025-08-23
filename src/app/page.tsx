@@ -21,9 +21,18 @@ const Container = styled.div`
 const Title = styled(motion.h1)`
   font-size: 3rem;
   color: #ffffff;
+  margin-bottom: 1rem;
+  text-align: center;
+  line-height: 1.2;
+`
+
+const Subtitle = styled(motion.h2)`
+  font-size: 1.2rem;
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 2rem;
   text-align: center;
-  line-height: 1.2; // 줄 간격을 좁히기 위해 추가
+  line-height: 1.4;
+  max-width: 600px;
 `
 
 const Form = styled.form`
@@ -182,6 +191,46 @@ const DropdownItem = styled(motion.li)`
   }
 `
 
+const FeatureList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding: 0;
+  list-style: none;
+  max-width: 600px;
+`
+
+const FeatureItem = styled(motion.li)`
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  color: #ffffff;
+  font-size: 0.9rem;
+  backdrop-filter: blur(10px);
+`
+
+const Footer = styled.footer`
+  position: absolute;
+  bottom: 1rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.85rem;
+  padding: 0 1rem;
+  
+  a {
+    color: rgba(255, 255, 255, 0.9);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    
+    &:hover {
+      color: #ffffff;
+      text-decoration: underline;
+    }
+  }
+`
+
 export default function Home() {
   const [activeTab, setActiveTab] = useState<'url' | 'wifi'>('url')
   const [url, setUrl] = useState('')
@@ -246,14 +295,56 @@ export default function Home() {
 
   return (
     <Container>
-      <Title
-        initial={{ opacity: 0, y: -50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-      >
-        QR Code Generator
-      </Title>
-      <TabContainer>
+      <header>
+        <Title
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          LUDGI QR Code Generator
+        </Title>
+        <Subtitle
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+        >
+          무료로 URL과 Wi-Fi QR 코드를 즉시 생성하세요
+        </Subtitle>
+      </header>
+      
+      <FeatureList>
+        <FeatureItem
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+        >
+          🚀 즉시 생성
+        </FeatureItem>
+        <FeatureItem
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
+        >
+          🎨 커스터마이징
+        </FeatureItem>
+        <FeatureItem
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
+        >
+          📱 모바일 최적화
+        </FeatureItem>
+        <FeatureItem
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.5 }}
+        >
+          🆓 완전 무료
+        </FeatureItem>
+      </FeatureList>
+      <main>
+        <nav aria-label="QR 코드 유형 선택">
+          <TabContainer>
         <Tab
           active={activeTab === 'url'}
           onClick={() => setActiveTab('url')}
@@ -269,9 +360,11 @@ export default function Home() {
           whileTap={{ scale: 0.95 }}
         >
           Wi-Fi
-        </Tab>
-      </TabContainer>
-      <Form onSubmit={(e) => e.preventDefault()}>
+          </Tab>
+          </TabContainer>
+        </nav>
+        <section aria-label="QR 코드 생성 폼">
+          <Form onSubmit={(e) => e.preventDefault()}>
         {activeTab === 'url' ? (
           <InputGroup>
             <Label htmlFor="url">URL</Label>
@@ -372,20 +465,21 @@ export default function Home() {
             transition={{ duration: 0.5, delay: 0.5 }}
           />
         </InputGroup>
-      </Form>
+          </Form>
+        </section>
 
-      {(url || (ssid && password)) && (
-        <DownloadButton
+        {(url || (ssid && password)) && (
+          <section aria-label="QR 코드 결과">
+            <DownloadButton
           onClick={downloadQRCode}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
         >
           Download QR Code
-        </DownloadButton>
-      )}
+            </DownloadButton>
 
-      {(url || (ssid && password)) && (
-        <QRCodeContainer
+            {(url || (ssid && password)) && (
+              <QRCodeContainer
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5 }}
@@ -397,9 +491,27 @@ export default function Home() {
             fgColor={qrColor}
             style={{ maxWidth: '100%', height: 'auto' }}
           />
-        </QRCodeContainer>
-      )}
-      <DisplayLudgi />
+              </QRCodeContainer>
+            )}
+          </section>
+        )}
+      </main>
+      <aside aria-label="회사 정보">
+        <DisplayLudgi />
+      </aside>
+      
+      <Footer>
+        <p>
+          © 2024-2025 <a href="https://ludgi.ai" target="_blank" rel="noopener noreferrer">주식회사 럿지 (LUDGI Inc.)</a> | 
+          사업자등록번호: 307-88-03283 | 
+          <a href="mailto:milli@molluhub.com">Contact</a>
+        </p>
+        <p>
+          <a href="https://ludgi.ai/privacy" target="_blank" rel="noopener noreferrer">개인정보처리방침</a> | 
+          <a href="https://ludgi.ai/terms" target="_blank" rel="noopener noreferrer">이용약관</a> | 
+          <a href="https://github.com/ludgi" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </p>
+      </Footer>
     </Container>
   )
 }
